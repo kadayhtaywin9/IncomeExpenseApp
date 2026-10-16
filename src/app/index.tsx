@@ -20,6 +20,7 @@ export default function App() {
   const [editId, setEditId] = useState(null);
   const [editDescription, setEditDescription] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [editDate, setEditDate] = useState(''); 
 
   useEffect(() => {
     db.execSync(`
@@ -122,12 +123,13 @@ export default function App() {
     setEditId(item.id);
     setEditDescription(item.description);
     setEditAmount(item.amount.toString());
+    setEditDate(item.date || getCurrentDate());
     setModalVisible(true);
   };
 
   const handleUpdate = () => {
-    if (!editDescription.trim() || !editAmount.trim()) {
-      Alert.alert('အမှား', 'အချက်အလက်များ ဖြည့်ရန် လိုအပ်ပါသည်။');
+    if (!editDescription.trim() || !editAmount.trim() || !editDate.trim()) {
+      Alert.alert('အမှား', 'အချက်အလက်များ အားလုံး ဖြည့်ရန် လိုအပ်ပါသည်။');
       return;
     }
 
@@ -138,9 +140,9 @@ export default function App() {
     }
 
     if (activeTab === 'income') {
-      db.runSync('UPDATE incomes SET description = ?, amount = ? WHERE id = ?', [editDescription, numericAmount, editId]);
+      db.runSync('UPDATE incomes SET description = ?, amount = ?, date = ? WHERE id = ?', [editDescription, numericAmount, editDate, editId]);
     } else {
-      db.runSync('UPDATE expenses SET description = ?, amount = ? WHERE id = ?', [editDescription, numericAmount, editId]);
+      db.runSync('UPDATE expenses SET description = ?, amount = ?, date = ? WHERE id = ?', [editDescription, numericAmount, editDate, editId]);
     }
 
     setModalVisible(false);
@@ -196,7 +198,7 @@ export default function App() {
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="အကြောင်းအရာ (ဥပမာ - လစာ၊ စားစရိတ်)"
+          placeholder="အကြောင်းအရာ"
           placeholderTextColor="#888"
           value={description}
           onChangeText={setDescription}
@@ -246,9 +248,11 @@ export default function App() {
                   <Text style={styles.tdAmount}>{item.amount.toLocaleString()} ကျပ်</Text>
                 </View>
 
-                {/* အောက်တန်း - Date နဲ့ ပြင်/ဖျက် ခလုတ်များ */}
+                {/* အောက်တန်း - Date ကို နှိပ်၍ ပြင်နိုင်ရန် TouchableOpacity ထည့်ထားပါသည် */}
                 <View style={styles.rowBottom}>
-                  <Text style={styles.tdDate}>📅 {item.date}</Text>
+                  <TouchableOpacity onPress={() => openEditModal(item)}>
+                    <Text style={styles.tdDate}>📅 {item.date}</Text>
+                  </TouchableOpacity>
                   <View style={styles.actionBtnContainer}>
                     <TouchableOpacity style={styles.editBtn} onPress={() => openEditModal(item)}>
                       <Text style={styles.btnTextSmall}>ပြင်ရန်</Text>
@@ -281,6 +285,12 @@ export default function App() {
               keyboardType="numeric"
               value={editAmount}
               onChangeText={setEditAmount}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="ရက်စွဲ (YYYY-MM-DD)"
+              value={editDate}
+              onChangeText={setEditDate}
             />
             <View style={styles.modalBtnRow}>
               <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setModalVisible(false)}>
@@ -336,7 +346,7 @@ const styles = StyleSheet.create({
   tdDesc: { fontSize: 15, fontWeight: 'bold', color: '#333', flexWrap: 'wrap' },
   tdAmount: { fontSize: 15, fontWeight: 'bold', color: '#333', minWidth: 80, textAlign: 'right' },
   rowBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 25 },
-  tdDate: { fontSize: 13, fontWeight: '600', color: '#555' },
+  tdDate: { fontSize: 13, fontWeight: '600', color: '#1976d2', textDecorationLine: 'underline' }, // နှိပ်လို့ရကြောင်း သိသာစေရန် အရောင်ပြောင်းထားသည်
   actionBtnContainer: { flexDirection: 'row' },
   editBtn: { backgroundColor: '#1976d2', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 4, marginRight: 6 },
   deleteBtn: { backgroundColor: '#d32f2f', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 4 },

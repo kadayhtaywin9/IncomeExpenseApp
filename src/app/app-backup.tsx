@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ScrollView, Modal } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { useEffect, useState } from 'react';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const db = SQLite.openDatabaseSync('finance_app.db');
 
@@ -240,7 +240,9 @@ export default function App() {
                 {/* အပေါ်တန်း - နံပါတ်၊ အကြောင်းအရာ၊ ငွေကျပ် */}
                 <View style={styles.rowTop}>
                   <Text style={styles.tdNo}>{serialNumber}.</Text>
-                  <Text style={styles.tdDesc}>{item.description}</Text>
+                  <View style={styles.tdDescContainer}>
+                    <Text style={styles.tdDesc}>{item.description}</Text>
+                  </View>
                   <Text style={styles.tdAmount}>{item.amount.toLocaleString()} ကျပ်</Text>
                 </View>
 
@@ -330,8 +332,9 @@ const styles = StyleSheet.create({
   tableRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
   rowTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 6 },
   tdNo: { fontSize: 14, fontWeight: 'bold', color: '#666', width: 25 },
-  tdDesc: { fontSize: 15, fontWeight: 'bold', color: '#333', flex: 1, marginRight: 10 },
-  tdAmount: { fontSize: 15, fontWeight: 'bold', color: '#333' },
+  tdDescContainer: { flex: 1, marginRight: 10 },
+  tdDesc: { fontSize: 15, fontWeight: 'bold', color: '#333', flexWrap: 'wrap' },
+  tdAmount: { fontSize: 15, fontWeight: 'bold', color: '#333', minWidth: 80, textAlign: 'right' },
   rowBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 25 },
   tdDate: { fontSize: 13, fontWeight: '600', color: '#555' },
   actionBtnContainer: { flexDirection: 'row' },
